@@ -42,6 +42,8 @@
             this.progressText = new System.Windows.Forms.Label();
             this.MergeButton = new System.Windows.Forms.Button();
             this.DownloadsBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.packSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.packFiles)).BeginInit();
@@ -72,8 +74,10 @@
             this.flowLayoutPanel1.Controls.Add(this.BrowseButton);
             this.flowLayoutPanel1.Controls.Add(this.label2);
             this.flowLayoutPanel1.Controls.Add(this.packSize);
+            this.flowLayoutPanel1.Controls.Add(this.label5);
             this.flowLayoutPanel1.Controls.Add(this.label3);
             this.flowLayoutPanel1.Controls.Add(this.packFiles);
+            this.flowLayoutPanel1.Controls.Add(this.label6);
             this.flowLayoutPanel1.Controls.Add(this.label4);
             this.flowLayoutPanel1.Controls.Add(this.progressBar);
             this.flowLayoutPanel1.Controls.Add(this.progressText);
@@ -191,6 +195,24 @@
             this.MergeButton.UseVisualStyleBackColor = true;
             this.MergeButton.Click += new System.EventHandler(this.MergeButton_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(338, 29);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(85, 17);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Default: 100";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(329, 57);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(93, 17);
+            this.label6.TabIndex = 13;
+            this.label6.Text = "Default: 1000";
+            // 
             // CCMergerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -226,6 +248,8 @@
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label progressText;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }
 

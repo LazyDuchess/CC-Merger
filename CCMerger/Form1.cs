@@ -13,6 +13,7 @@ using System.Threading;
 using System.Collections;
 using System.Diagnostics;
 using Microsoft.WindowsAPICodePack.Taskbar;
+using System.Configuration;
 
 namespace CCMerger
 {
@@ -30,7 +31,31 @@ namespace CCMerger
         string downloadsDir = "";
         private System.Windows.Forms.Timer timer1;
         PleaseWaitForm waitForm = new PleaseWaitForm();
+        Configuration config;
 
+        public CCMergerForm()
+        {
+            config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            InitializeComponent();
+            if (ConfigurationManager.AppSettings.Get("folder") == "")
+            {
+                var dirTest = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "EA Games/The Sims™ 2 Ultimate Collection/Downloads");
+                if (Directory.Exists(dirTest))
+                    downloadsDir = dirTest;
+
+            }
+            else
+                downloadsDir = ConfigurationManager.AppSettings.Get("folder");
+            DownloadsInputBox.Text = downloadsDir;
+            long fsiz = packageMaxSize;
+            uint famount = packageMaxFileAmount;
+            long.TryParse(ConfigurationManager.AppSettings.Get("filesize"),out fsiz);
+            uint.TryParse(ConfigurationManager.AppSettings.Get("filecount"), out famount);
+            //fsiz = Math.Min(packSize.Maximum, Math.Max(0, fsiz));
+            fsiz /= 1000000;
+            packSize.Value = Math.Min(packSize.Maximum, Math.Max(0, fsiz));
+            packFiles.Value = Math.Min(packFiles.Maximum, Math.Max(0, famount));
+        }
 
         void ThreadedStuff()
         {
@@ -233,14 +258,7 @@ namespace CCMerger
             isFinished = true;
         }
 
-        public CCMergerForm()
-        {
-            InitializeComponent();
-            var dirTest = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "EA Games/The Sims™ 2 Ultimate Collection/Downloads");
-            if (Directory.Exists(dirTest))
-                downloadsDir = dirTest;
-            DownloadsInputBox.Text = downloadsDir;
-        }
+        
 
         private void BrowseButton_Click(object sender, EventArgs e)
         {
@@ -250,6 +268,8 @@ namespace CCMerger
             {
                 downloadsDir = DownloadsBrowserDialog.SelectedPath;
                 DownloadsInputBox.Text = downloadsDir;
+                config.AppSettings.Settings["folder"].Value = downloadsDir;
+                config.Save(ConfigurationSaveMode.Full);
             }
         }
         private void MergeButton_Click(object sender, EventArgs e)
@@ -337,6 +357,8 @@ namespace CCMerger
         private void DownloadsInputBox_TextChanged(object sender, EventArgs e)
         {
             downloadsDir = DownloadsInputBox.Text;
+            config.AppSettings.Settings["folder"].Value = downloadsDir;
+            config.Save(ConfigurationSaveMode.Full);
         }
 
         private void CCMergerForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -344,17 +366,22 @@ namespace CCMerger
             if (thread != null && thread.IsAlive)
                 thread.Abort();
             //waitForm.Close();
+            
             Application.Exit();
         }
 
         private void packSize_ValueChanged(object sender, EventArgs e)
         {
             packageMaxSize = (long)packSize.Value * 1000000;
+            config.AppSettings.Settings["filesize"].Value = packageMaxSize.ToString();
+            config.Save(ConfigurationSaveMode.Full);
         }
 
         private void packFiles_ValueChanged(object sender, EventArgs e)
         {
             packageMaxFileAmount = (uint)packFiles.Value;
+            config.AppSettings.Settings["filecount"].Value = packageMaxFileAmount.ToString();
+            config.Save(ConfigurationSaveMode.Full);
         }
     }
     public class PackageToWrite
