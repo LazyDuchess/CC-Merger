@@ -7,4 +7,4 @@ You need the Delimon.Win32.IO library to build this, since it removes the file p
 
 Uses https://github.com/aybe/Windows-API-Code-Pack-1.1 for the taskbar progress bar.
 
-The package code and some other file format bits are modified from https://github.com/riperiperi/FreeSO
+The package code and some other file format bits are modified from https://github.com/riperiperi/FreeSO and https://github.com/LazyDuchess/SimUnity2
