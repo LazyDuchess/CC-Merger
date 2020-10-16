@@ -82,6 +82,8 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="IoBuffer.cs" />
+    <Compile Include="PackageError.cs" />
+    <Compile Include="PackageToWrite.cs" />
     <Compile Include="PleaseWaitForm.cs">
       <SubType>Form</SubType>
     </Compile>

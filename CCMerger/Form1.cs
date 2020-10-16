@@ -20,6 +20,9 @@ namespace CCMerger
     
     public partial class CCMergerForm : Form
     {
+        List<PackageError> errors = new List<PackageError>();
+        bool failed = false;
+        string trace = "";
         long packageMaxSize = 100000000;
         uint packageMaxFileAmount = 1000;
         Thread thread;
@@ -59,6 +62,9 @@ namespace CCMerger
 
         void ThreadedStuff()
         {
+            failed = false;
+            trace = "";
+            errors = new List<PackageError>();
             var pendingPackages = new List<PackageToWrite>();
             var currentPack = new PackageToWrite();
             long currentPackSize = 0;
@@ -72,6 +78,7 @@ namespace CCMerger
             currentFile = 0;
             downloadsDir = downloadsDir.Replace("/", "\\");
             startedWriting = false;
+            var packageCount = 0; //For logging purposes
             foreach (var element in Delimon.Win32.IO.Directory.GetFiles(downloadsDir, "*.package", Delimon.Win32.IO.SearchOption.AllDirectories))
             {
                 try
@@ -96,10 +103,17 @@ namespace CCMerger
                     entryAmount += (int)pack.NumEntries;
                     //packages.Add(pack);
                     currentPack.packages.Add(pack);
+                    packageCount += 1;
                 }
                 catch(Exception e)
                 {
-                    MessageBox.Show("There was an error reading package " + element + "." + Environment.NewLine + e.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var err = new PackageError()
+                    {
+                        file = element,
+                        trace = e.ToString()
+                    };
+                    errors.Add(err);
+                    //MessageBox.Show("There was an error reading package " + element + "." + Environment.NewLine + e.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             if (fileAmount == 0)
@@ -268,6 +282,38 @@ namespace CCMerger
             catch(Exception e)
             {
                 MessageBox.Show("There was an error writing the merged packages:" + Environment.NewLine + e.ToString(),"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                failed = true;
+                trace = e.ToString();
+            }
+            var logName = Path.Combine(Path.GetDirectoryName(target), "CCMerger.log");
+            using (StreamWriter logStream = new StreamWriter(logName))
+            {
+                logStream.WriteLine("CCMerger log");
+                logStream.WriteLine();
+                logStream.WriteLine("[Settings Used]");
+                logStream.WriteLine("Max files per package: " + packFiles.Value);
+                logStream.WriteLine("Max package size: " + packSize.Value + " mb");
+                logStream.WriteLine();
+                logStream.WriteLine("[Results]");
+                logStream.WriteLine("Merged "+packageCount+" packages containing "+fileAmount+" files into "+pendingPackages.Count+" packages.");
+                logStream.WriteLine();
+                logStream.WriteLine("[Errors]");
+                logStream.WriteLine(errors.Count+" packages failed to merge.");
+                foreach(var element in errors)
+                {
+                    logStream.WriteLine("Package name: " + element.file);
+                    logStream.WriteLine(element.trace);
+                }
+                if (failed)
+                {
+                    logStream.WriteLine("Failed to merge packages :(");
+                    logStream.WriteLine(trace);
+                }
+                else
+                {
+                    logStream.WriteLine("Packages were merged succesfully :)");
+                }
+
             }
             isFinished = true;
         }
@@ -333,7 +379,17 @@ namespace CCMerger
                 packSize.Enabled = true;
                 isFinished = false;
                 timer1.Stop();
-                MessageBox.Show("Packages merged successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (failed)
+                    MessageBox.Show("Failed to merge the packages :(. Check the log at CCMerger.log in the output directory for more details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                else
+                {
+                    if (errors.Count > 0)
+                        MessageBox.Show("There were errors merging " + errors.Count + " packages. Check the log at CCMerger.log in the output directory for more details.", "Finished", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else
+                    {
+                        MessageBox.Show("Packages merged successfully", "Finished", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
                 TaskbarManager.Instance.SetProgressValue(0, 100, Handle);
                 progressText.Text = "";
                 progressBar.Value = 0;
@@ -398,9 +454,5 @@ namespace CCMerger
             config.Save(ConfigurationSaveMode.Full);
         }
     }
-    public class PackageToWrite
-    {
-        public List<DBPFFile> packages = new List<DBPFFile>();
-        public bool compress = false;
-    }
+    
 }
