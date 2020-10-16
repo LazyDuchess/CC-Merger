@@ -35,15 +35,15 @@
             this.BrowseButton = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.packSize = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.packFiles = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.progressText = new System.Windows.Forms.Label();
             this.MergeButton = new System.Windows.Forms.Button();
             this.DownloadsBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.packSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.packFiles)).BeginInit();
@@ -132,6 +132,15 @@
             0});
             this.packSize.ValueChanged += new System.EventHandler(this.packSize_ValueChanged);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(338, 29);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(85, 17);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Default: 100";
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -158,6 +167,15 @@
             0,
             0});
             this.packFiles.ValueChanged += new System.EventHandler(this.packFiles_ValueChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(329, 57);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(93, 17);
+            this.label6.TabIndex = 13;
+            this.label6.Text = "Default: 1000";
             // 
             // label4
             // 
@@ -195,24 +213,6 @@
             this.MergeButton.UseVisualStyleBackColor = true;
             this.MergeButton.Click += new System.EventHandler(this.MergeButton_Click);
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(338, 29);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(85, 17);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Default: 100";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(329, 57);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(93, 17);
-            this.label6.TabIndex = 13;
-            this.label6.Text = "Default: 1000";
-            // 
             // CCMergerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -223,7 +223,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "CCMergerForm";
-            this.Text = "Custom Content Merger";
+            this.Text = "CCMerger by Lazy Duchess";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CCMergerForm_FormClosing);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();

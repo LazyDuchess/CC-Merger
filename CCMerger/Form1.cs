@@ -74,26 +74,33 @@ namespace CCMerger
             startedWriting = false;
             foreach (var element in Delimon.Win32.IO.Directory.GetFiles(downloadsDir, "*.package", Delimon.Win32.IO.SearchOption.AllDirectories))
             {
-                var pack = new DBPFFile(element);
-                currentPackSize += new Delimon.Win32.IO.FileInfo(element).Length;
-                currentFileAmount += pack.NumEntries;
-                if ((currentPackSize  >= packageMaxSize && packageMaxSize != 0) || (currentFileAmount >= packageMaxFileAmount && packageMaxFileAmount != 0))
+                try
                 {
-                    currentPack = new PackageToWrite();
-                    currentPackSize = 0;
-                    currentFileAmount = 0;
-                    pendingPackages.Add(currentPack);
+                    var pack = new DBPFFile(element);
+                    currentPackSize += new Delimon.Win32.IO.FileInfo(element).Length;
+                    currentFileAmount += pack.NumEntries;
+                    if ((currentPackSize >= packageMaxSize && packageMaxSize != 0) || (currentFileAmount >= packageMaxFileAmount && packageMaxFileAmount != 0))
+                    {
+                        currentPack = new PackageToWrite();
+                        currentPackSize = 0;
+                        currentFileAmount = 0;
+                        pendingPackages.Add(currentPack);
+                    }
+                    fileAmount += pack.NumEntries;
+                    if (pack.hasCompression)
+                    {
+                        gotCompression = true;
+                        currentPack.compress = true;
+                        fileAmount -= 1;
+                    }
+                    entryAmount += (int)pack.NumEntries;
+                    //packages.Add(pack);
+                    currentPack.packages.Add(pack);
                 }
-                fileAmount += pack.NumEntries;
-                if (pack.hasCompression)
+                catch(Exception e)
                 {
-                    gotCompression = true;
-                    currentPack.compress = true;
-                    fileAmount -= 1;
+                    MessageBox.Show("There was an error reading package " + element + "." + Environment.NewLine + e.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                entryAmount += (int)pack.NumEntries;
-                //packages.Add(pack);
-                currentPack.packages.Add(pack);
             }
             if (fileAmount == 0)
             {
@@ -104,156 +111,163 @@ namespace CCMerger
             fileAmount *= 2;
             startedWriting = true;
             byte[] dirfil = null;
-            for(var i=0;i<pendingPackages.Count;i++)
+            try
             {
-                var packToWrite = pendingPackages[i];
-                var dirStream = new MemoryStream();
-                var dirWriter = new BinaryWriter(dirStream);
-                foreach (var packa in packToWrite.packages)
+                for (var i = 0; i < pendingPackages.Count; i++)
                 {
-                    foreach (var element in packa.m_EntryByID)
+                    var packToWrite = pendingPackages[i];
+                    var dirStream = new MemoryStream();
+                    var dirWriter = new BinaryWriter(dirStream);
+                    foreach (var packa in packToWrite.packages)
                     {
-                        if (element.Value.TypeID != 0xE86B1EEF && element.Value.uncompressedSize != 0)
+                        foreach (var element in packa.m_EntryByID)
                         {
-                            //fileAmount += 1;
-                            //TypeID
-                            dirWriter.Write(element.Value.TypeID);
-                            //GroupID
-                            dirWriter.Write(element.Value.GroupID);
-                            //InstanceID
-                            dirWriter.Write(element.Value.InstanceID);
-                            //ResourceID
-                            dirWriter.Write(element.Value.InstanceID2);
-                            //UncompressedSize
-                            dirWriter.Write(element.Value.uncompressedSize);
+                            if (element.Value.TypeID != 0xE86B1EEF && element.Value.uncompressedSize != 0)
+                            {
+                                //fileAmount += 1;
+                                //TypeID
+                                dirWriter.Write(element.Value.TypeID);
+                                //GroupID
+                                dirWriter.Write(element.Value.GroupID);
+                                //InstanceID
+                                dirWriter.Write(element.Value.InstanceID);
+                                //ResourceID
+                                dirWriter.Write(element.Value.InstanceID2);
+                                //UncompressedSize
+                                dirWriter.Write(element.Value.uncompressedSize);
+                            }
                         }
                     }
-                }
-                dirfil = dirStream.ToArray();
-                dirWriter.Dispose();
-                dirStream.Dispose();
-                var fname = Path.Combine(Path.GetDirectoryName(target),Path.GetFileNameWithoutExtension(target) + i.ToString() + ".package");
-                var mStream = new FileStream(fname, FileMode.Create);
-                var mWriter = new BinaryWriter(mStream);
-                //HeeeADER
-                mWriter.Write(new char[] { 'D', 'B', 'P', 'F' });
-                //major version
-                mWriter.Write((int)1);
-                //minor version
-                mWriter.Write((int)2);
-                mWriter.Write(new byte[12]);
-                //Date stuff
-                mWriter.Write((int)0);
-                mWriter.Write((int)0);
-                //Index major
-                mWriter.Write((int)7);
-                //Num entries
-                var entryAmountOffset = mStream.Position;
-                mWriter.Write((int)0);
-                //Index offset
-                var indexOff = mStream.Position;
-                //Placeholder
-                mWriter.Write((int)0);
-                //Index size
-                var indexSize = mStream.Position;
-                //Placeholder
-                mWriter.Write((int)0);
-
-                //Trash Entry Stuff
-                mWriter.Write((int)0);
-                mWriter.Write((int)0);
-                mWriter.Write((int)0);
-
-                //Index Minor Ver
-                mWriter.Write((int)2);
-                //Padding
-                mWriter.Write(new byte[32]);
-
-                var lastPos = mStream.Position;
-                mStream.Position = indexOff;
-                mWriter.Write((int)lastPos);
-                mStream.Position = lastPos;
-                var entryAmount2 = 0;
-                var indeOf = mStream.Position;
-                long dirFilOffset = 0;
-                if (packToWrite.compress)
-                {
-                    currentFile += 1;
-                    //TypeID
-                    mWriter.Write(0xE86B1EEF);
-                    //GroupID
-                    mWriter.Write(0xE86B1EEF);
-                    //InstanceID
-                    mWriter.Write(0x286B1F03);
-                    //ResourceID
-                    mWriter.Write(0x00000000);
-                    //File Offset
-                    dirFilOffset = mStream.Position;
+                    dirfil = dirStream.ToArray();
+                    dirWriter.Dispose();
+                    dirStream.Dispose();
+                    var fname = Path.Combine(Path.GetDirectoryName(target), Path.GetFileNameWithoutExtension(target) + i.ToString() + ".package");
+                    var mStream = new FileStream(fname, FileMode.Create);
+                    var mWriter = new BinaryWriter(mStream);
+                    //HeeeADER
+                    mWriter.Write(new char[] { 'D', 'B', 'P', 'F' });
+                    //major version
+                    mWriter.Write((int)1);
+                    //minor version
+                    mWriter.Write((int)2);
+                    mWriter.Write(new byte[12]);
+                    //Date stuff
                     mWriter.Write((int)0);
-                    //File Size
-                    mWriter.Write(dirfil.Length);
-                    entryAmount2 += 1;
-                }
-                foreach (var packa in packToWrite.packages)
-                {
-                    foreach (var element in packa.m_EntryByID)
-                    {
-                        if (element.Value.TypeID != 0xE86B1EEF)
-                        {
-                            currentFile += 1;
-                            //TypeID
-                            mWriter.Write(element.Value.TypeID);
-                            //GroupID
-                            mWriter.Write(element.Value.GroupID);
-                            //InstanceID
-                            mWriter.Write(element.Value.InstanceID);
-                            //ResourceID
-                            mWriter.Write(element.Value.InstanceID2);
-                            //File Offset
-                            element.Value.writeOff = mStream.Position;
-                            mWriter.Write((int)0);
-                            //File Size
-                            mWriter.Write(element.Value.FileSize);
-                            entryAmount2 += 1;
-                        }
-                    }
-                }
-                lastPos = mStream.Position;
-                mStream.Position = entryAmountOffset;
-                mWriter.Write(entryAmount2);
-                var siz = lastPos - indeOf;
-                mStream.Position = indexOff;
-                mWriter.Write(indeOf);
-                mStream.Position = indexSize;
-                mWriter.Write(siz);
-                mStream.Position = lastPos;
-                if (packToWrite.compress)
-                {
-                    lastPos = mStream.Position;
-                    mStream.Position = dirFilOffset;
+                    mWriter.Write((int)0);
+                    //Index major
+                    mWriter.Write((int)7);
+                    //Num entries
+                    var entryAmountOffset = mStream.Position;
+                    mWriter.Write((int)0);
+                    //Index offset
+                    var indexOff = mStream.Position;
+                    //Placeholder
+                    mWriter.Write((int)0);
+                    //Index size
+                    var indexSize = mStream.Position;
+                    //Placeholder
+                    mWriter.Write((int)0);
+
+                    //Trash Entry Stuff
+                    mWriter.Write((int)0);
+                    mWriter.Write((int)0);
+                    mWriter.Write((int)0);
+
+                    //Index Minor Ver
+                    mWriter.Write((int)2);
+                    //Padding
+                    mWriter.Write(new byte[32]);
+
+                    var lastPos = mStream.Position;
+                    mStream.Position = indexOff;
                     mWriter.Write((int)lastPos);
                     mStream.Position = lastPos;
-                    mWriter.Write(dirfil);
-                }
-                foreach (var packa in packToWrite.packages)
-                {
-                    foreach (var element in packa.m_EntryByID)
+                    var entryAmount2 = 0;
+                    var indeOf = mStream.Position;
+                    long dirFilOffset = 0;
+                    if (packToWrite.compress)
                     {
-                        System.GC.Collect(); // Just in case?
-                        if (element.Value.TypeID != 0xE86B1EEF)
+                        currentFile += 1;
+                        //TypeID
+                        mWriter.Write(0xE86B1EEF);
+                        //GroupID
+                        mWriter.Write(0xE86B1EEF);
+                        //InstanceID
+                        mWriter.Write(0x286B1F03);
+                        //ResourceID
+                        mWriter.Write(0x00000000);
+                        //File Offset
+                        dirFilOffset = mStream.Position;
+                        mWriter.Write((int)0);
+                        //File Size
+                        mWriter.Write(dirfil.Length);
+                        entryAmount2 += 1;
+                    }
+                    foreach (var packa in packToWrite.packages)
+                    {
+                        foreach (var element in packa.m_EntryByID)
                         {
-                            currentFile += 1;
-                            lastPos = mStream.Position;
-                            mStream.Position = element.Value.writeOff;
-                            mWriter.Write((int)lastPos);
-                            mStream.Position = lastPos;
-                            var ent = packa.GetEntry(element.Value);
-                            mWriter.Write(ent);
+                            if (element.Value.TypeID != 0xE86B1EEF)
+                            {
+                                currentFile += 1;
+                                //TypeID
+                                mWriter.Write(element.Value.TypeID);
+                                //GroupID
+                                mWriter.Write(element.Value.GroupID);
+                                //InstanceID
+                                mWriter.Write(element.Value.InstanceID);
+                                //ResourceID
+                                mWriter.Write(element.Value.InstanceID2);
+                                //File Offset
+                                element.Value.writeOff = mStream.Position;
+                                mWriter.Write((int)0);
+                                //File Size
+                                mWriter.Write(element.Value.FileSize);
+                                entryAmount2 += 1;
+                            }
                         }
                     }
+                    lastPos = mStream.Position;
+                    mStream.Position = entryAmountOffset;
+                    mWriter.Write(entryAmount2);
+                    var siz = lastPos - indeOf;
+                    mStream.Position = indexOff;
+                    mWriter.Write(indeOf);
+                    mStream.Position = indexSize;
+                    mWriter.Write(siz);
+                    mStream.Position = lastPos;
+                    if (packToWrite.compress)
+                    {
+                        lastPos = mStream.Position;
+                        mStream.Position = dirFilOffset;
+                        mWriter.Write((int)lastPos);
+                        mStream.Position = lastPos;
+                        mWriter.Write(dirfil);
+                    }
+                    foreach (var packa in packToWrite.packages)
+                    {
+                        foreach (var element in packa.m_EntryByID)
+                        {
+                            System.GC.Collect(); // Just in case?
+                            if (element.Value.TypeID != 0xE86B1EEF)
+                            {
+                                currentFile += 1;
+                                lastPos = mStream.Position;
+                                mStream.Position = element.Value.writeOff;
+                                mWriter.Write((int)lastPos);
+                                mStream.Position = lastPos;
+                                var ent = packa.GetEntry(element.Value);
+                                mWriter.Write(ent);
+                            }
+                        }
+                    }
+                    mWriter.Dispose();
+                    mStream.Dispose();
                 }
-                mWriter.Dispose();
-                mStream.Dispose();
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show("There was an error writing the merged packages:" + Environment.NewLine + e.ToString(),"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
             isFinished = true;
         }
