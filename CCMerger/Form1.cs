@@ -288,7 +288,7 @@ namespace CCMerger
             var logName = Path.Combine(Path.GetDirectoryName(target), "CCMerger.log");
             using (StreamWriter logStream = new StreamWriter(logName))
             {
-                logStream.WriteLine("CCMerger log");
+                logStream.WriteLine("CCMerger log - version "+Program.version);
                 logStream.WriteLine();
                 logStream.WriteLine("[Settings Used]");
                 logStream.WriteLine("Max files per package: " + packFiles.Value);

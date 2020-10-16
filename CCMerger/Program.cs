@@ -6,8 +6,9 @@ using System.Windows.Forms;
 
 namespace CCMerger
 {
-    static class Program
+    public static class Program
     {
+        public static string version = "1.1.2";
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
