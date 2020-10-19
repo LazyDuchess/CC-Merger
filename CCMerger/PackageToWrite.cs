@@ -9,6 +9,7 @@ namespace CCMerger
 {
     public class PackageToWrite
     {
+        public string name = "";
         public List<DBPFFile> packages = new List<DBPFFile>();
         public bool compress = false;
     }

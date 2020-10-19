@@ -8,7 +8,7 @@ namespace CCMerger
 {
     public static class Program
     {
-        public static string version = "1.3";
+        public static string version = "1.4";
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

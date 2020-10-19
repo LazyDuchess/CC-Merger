@@ -52,12 +52,15 @@ namespace CCMerger
             DownloadsInputBox.Text = downloadsDir;
             long fsiz = packageMaxSize;
             uint famount = packageMaxFileAmount;
+            bool lg = false;
             long.TryParse(ConfigurationManager.AppSettings.Get("filesize"),out fsiz);
             uint.TryParse(ConfigurationManager.AppSettings.Get("filecount"), out famount);
+            bool.TryParse(ConfigurationManager.AppSettings.Get("log"), out lg);
             //fsiz = Math.Min(packSize.Maximum, Math.Max(0, fsiz));
             fsiz /= 1000000;
             packSize.Value = Math.Min(packSize.Maximum, Math.Max(0, fsiz));
             packFiles.Value = Math.Min(packFiles.Maximum, Math.Max(0, famount));
+            logBox.Checked = lg;
         }
 
         void ThreadedStuff()
@@ -156,6 +159,7 @@ namespace CCMerger
                     dirWriter.Dispose();
                     dirStream.Dispose();
                     var fname = Path.Combine(Path.GetDirectoryName(target), Path.GetFileNameWithoutExtension(target) + i.ToString() + ".package");
+                    packToWrite.name = fname;
                     var mStream = new FileStream(fname, FileMode.Create);
                     var mWriter = new BinaryWriter(mStream);
                     //HeeeADER
@@ -313,7 +317,24 @@ namespace CCMerger
                 {
                     logStream.WriteLine("Packages were merged succesfully :)");
                 }
-
+            }
+            if (logBox.Checked)
+            {
+                foreach (var element in pendingPackages)
+                {
+                    var simpleName = Path.GetFileName(element.name);
+                    var fname = Path.Combine(Path.GetDirectoryName(element.name), Path.GetFileNameWithoutExtension(element.name) + ".txt");
+                    using (StreamWriter logStream = new StreamWriter(fname))
+                    {
+                        logStream.WriteLine("Contents of " + simpleName + ":");
+                        logStream.WriteLine();
+                        foreach (var packs in element.packages)
+                        {
+                            logStream.WriteLine(Path.GetFileName(packs.fname));
+                        }
+                        logStream.WriteLine();
+                    }
+                }
             }
             isFinished = true;
         }
@@ -356,6 +377,7 @@ namespace CCMerger
             MergeButton.Enabled = false;
             packSize.Enabled = false;
             packFiles.Enabled = false;
+            logBox.Enabled = false;
             isFinished = false;
             thread = new Thread(new ThreadStart(ThreadedStuff));
             thread.Start();
@@ -377,6 +399,7 @@ namespace CCMerger
                 MergeButton.Enabled = true;
                 packFiles.Enabled = true;
                 packSize.Enabled = true;
+                logBox.Enabled = true;
                 isFinished = false;
                 timer1.Stop();
                 if (failed)
@@ -451,6 +474,12 @@ namespace CCMerger
         {
             packageMaxFileAmount = (uint)packFiles.Value;
             config.AppSettings.Settings["filecount"].Value = packageMaxFileAmount.ToString();
+            config.Save(ConfigurationSaveMode.Full);
+        }
+
+        private void logBox_CheckedChanged(object sender, EventArgs e)
+        {
+            config.AppSettings.Settings["log"].Value = logBox.Checked.ToString();
             config.Save(ConfigurationSaveMode.Full);
         }
     }

@@ -44,6 +44,7 @@
             this.progressText = new System.Windows.Forms.Label();
             this.MergeButton = new System.Windows.Forms.Button();
             this.DownloadsBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.logBox = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.packSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.packFiles)).BeginInit();
@@ -60,7 +61,7 @@
             // 
             this.DownloadsInputBox.Location = new System.Drawing.Point(188, 3);
             this.DownloadsInputBox.Name = "DownloadsInputBox";
-            this.DownloadsInputBox.Size = new System.Drawing.Size(195, 22);
+            this.DownloadsInputBox.Size = new System.Drawing.Size(292, 22);
             this.DownloadsInputBox.TabIndex = 0;
             this.DownloadsInputBox.TextChanged += new System.EventHandler(this.DownloadsInputBox_TextChanged);
             // 
@@ -81,9 +82,10 @@
             this.flowLayoutPanel1.Controls.Add(this.label4);
             this.flowLayoutPanel1.Controls.Add(this.progressBar);
             this.flowLayoutPanel1.Controls.Add(this.progressText);
+            this.flowLayoutPanel1.Controls.Add(this.logBox);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 12);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(474, 180);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(565, 174);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // label1
@@ -97,7 +99,7 @@
             // 
             // BrowseButton
             // 
-            this.BrowseButton.Location = new System.Drawing.Point(389, 3);
+            this.BrowseButton.Location = new System.Drawing.Point(486, 3);
             this.BrowseButton.Name = "BrowseButton";
             this.BrowseButton.Size = new System.Drawing.Size(75, 23);
             this.BrowseButton.TabIndex = 3;
@@ -182,13 +184,13 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(3, 85);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(440, 34);
+            this.label4.Size = new System.Drawing.Size(494, 17);
             this.label4.TabIndex = 11;
             this.label4.Text = "(If your game crashes with higher values, use the default ones or try smaller.)";
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(3, 122);
+            this.progressBar.Location = new System.Drawing.Point(3, 105);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(464, 32);
             this.progressBar.TabIndex = 9;
@@ -196,16 +198,17 @@
             // progressText
             // 
             this.progressText.AutoSize = true;
-            this.progressText.Location = new System.Drawing.Point(3, 157);
+            this.progressText.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F);
+            this.progressText.Location = new System.Drawing.Point(473, 102);
             this.progressText.Name = "progressText";
-            this.progressText.Size = new System.Drawing.Size(0, 17);
+            this.progressText.Size = new System.Drawing.Size(0, 31);
             this.progressText.TabIndex = 10;
             this.progressText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // MergeButton
             // 
             this.MergeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.MergeButton.Location = new System.Drawing.Point(492, 146);
+            this.MergeButton.Location = new System.Drawing.Point(583, 140);
             this.MergeButton.Name = "MergeButton";
             this.MergeButton.Size = new System.Drawing.Size(75, 46);
             this.MergeButton.TabIndex = 4;
@@ -213,11 +216,22 @@
             this.MergeButton.UseVisualStyleBackColor = true;
             this.MergeButton.Click += new System.EventHandler(this.MergeButton_Click);
             // 
+            // logBox
+            // 
+            this.logBox.AutoSize = true;
+            this.logBox.Location = new System.Drawing.Point(3, 143);
+            this.logBox.Name = "logBox";
+            this.logBox.Size = new System.Drawing.Size(376, 21);
+            this.logBox.TabIndex = 14;
+            this.logBox.Text = "Write the contents of each merged package in text files";
+            this.logBox.UseVisualStyleBackColor = true;
+            this.logBox.CheckedChanged += new System.EventHandler(this.logBox_CheckedChanged);
+            // 
             // CCMergerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(571, 204);
+            this.ClientSize = new System.Drawing.Size(662, 198);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.MergeButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -250,6 +264,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox logBox;
     }
 }
 
