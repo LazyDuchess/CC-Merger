@@ -421,7 +421,7 @@ namespace CCMerger
             {
                 if (startedWriting)
                 {
-                    var prog = Math.Floor((((float)currentFile / (float)fileAmount) * 100.0f));
+                    var prog = Math.Min(0f, Math.Max(100f, Math.Floor((((float)currentFile / (float)fileAmount) * 100.0f))));
                     progressText.Text = prog.ToString() + "%";
                     progressBar.Value = (int)prog;
                     TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, Handle);
